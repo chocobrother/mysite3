@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+
+	<select id="getList" resultType="boardvo" parameterType="int">
+	<![CDATA[
+	
+			 select board.no, 
+					board.title, 
+					board.content, 
+					board.group_no, 
+					board.order_no, 
+					board.depth, 
+					board.hit, 
+					board.write_date, 
+					board.user_no, 
+					users.name as user_name
+					from board, users 
+					where board.user_no = users.no
+					group by board.no
+					order by group_no DESC, order_no ASC 
+					limit #{pg} ,5
+	]]>
+	</select>
+
+	<insert id="insert" parameterType="boardvo">
+	<![CDATA[
+			insert 
+			into board 
+			values
+			(null, 
+			#{title}, 
+			#{content}, 
+			#{group_no}, 
+			#{order_no}, 
+			#{depth}, 
+			#{hit}, 
+			now(),
+			#{user_no})
+		]]>
+	</insert>
+
+	<update id="hitupdate" parameterType="boardvo">
+	<![CDATA[
+	update board set hit = hit + 1 where no = #{no}
+		]]>
+	</update>
+
+	<update id="orderupdate" parameterType="boardvo">
+	<![CDATA[
+	update board set order_no = order_no + 1 where group_no = #{group_no} 
+		]]>
+	</update>
+
+
+	<delete id="delete" parameterType="boardvo">
+	<![CDATA[
+	
+	delete 
+	from board 
+	where user_no = #{user_no}
+	and no = #{no}
+	
+		]]>
+
+	</delete>
+
+
+<select id="getTotalA" resultType="int" >
+	<![CDATA[
+	
+			 select count(*) from board
+	]]>
+	</select>
+
+
+<select id="maxGroupNo" resultType="int" >
+	<![CDATA[
+	
+		select max(group_no) from board
+	]]>
+	</select>
+	
+	
+	<select id="maxOrderNo" resultType="Long" parameterType ="Long" >
+	<![CDATA[
+	
+		select max(order_no) from board where group_no = #{group_no}
+	]]>
+	</select>
+
+	<select id="maxdepth" resultType="Long" parameterType ="Long" >
+		<![CDATA[
+		
+		select max(depth) from board where group_no = #{group_no}
+	]]>
+	</select>
+	
+	<select id="viewList" resultType="boardvo" parameterType ="boardvo" >
+		<![CDATA[
+		
+		select no,title, content,user_no,order_no,group_no,depth,user_no from board where no = #{no}
+	]]>
+	</select>
+	
+	<update id="update" parameterType ="boardvo">
+		<![CDATA[
+			update board 
+					set title = #{title}, 
+					content = #{content} 
+					where no= #{no}
+		]]>
+	</update>
+	
+	<insert id = "replyInsert" parameterType = "boardvo">
+		<![CDATA[
+			insert 
+			into board 
+			values
+			(null, 
+			#{title}, 
+			#{content}, 
+			#{group_no}, 
+			#{order_no}, 
+			#{depth}, 
+			#{hit}, 
+			now(),
+			#{user_no})
+			]]>
+	</insert>
+
+</mapper>
